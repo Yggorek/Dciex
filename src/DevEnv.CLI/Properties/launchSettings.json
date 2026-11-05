@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DevEnv.CLI": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

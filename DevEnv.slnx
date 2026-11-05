@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DevEnv.Application/DevEnv.Application.csproj" />
+    <Project Path="src/DevEnv.CLI/DevEnv.CLI.csproj" />
+    <Project Path="src/DevEnv.Core/DevEnv.Core.csproj" />
+    <Project Path="src/DevEnv.Infrastructure/DevEnv.Infrastructure.csproj" />
+  </Folder>
+</Solution>
