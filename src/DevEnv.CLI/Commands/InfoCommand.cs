@@ -21,6 +21,12 @@ public class InfoCommand
         command.SetAction(async execute =>
         {
             var name = execute.GetValue(nameArgument);
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                Console.WriteLine("Please provide a project name.");
+                return;
+            }
+
             var project = await projectRegistry.GetByNameAsync(name);
             if (project == null)
             {

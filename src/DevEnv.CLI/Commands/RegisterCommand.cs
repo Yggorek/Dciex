@@ -21,6 +21,10 @@ public class RegisterCommand
         command.SetAction(async execute =>
         {
             var path = execute.GetValue(pathArgument);
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
             try
             {
                 var project = await projectRegistry.RegisterAsync(path);

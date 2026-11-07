@@ -1,4 +1,5 @@
 ﻿using DevEnv.Core.Projects;
+using System.Linq;
 
 
 namespace DevEnv.Application.Projects
@@ -65,6 +66,22 @@ namespace DevEnv.Application.Projects
             await _projectStorage.SaveAsync(projects, cancellationToken);
             return newProject;
             
+        }
+        public async Task<bool> UnregisterAsync(string name, CancellationToken cancellationToken = default)
+        {
+            if(string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Name cannot be null or whitespace.", nameof(name));
+            }
+            var projects = (await _projectStorage.LoadAsync(cancellationToken)).ToList();
+            var project = projects.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (project == null)
+            {
+                return false;
+            }
+            projects.Remove(project);
+            await _projectStorage.SaveAsync(projects, cancellationToken);
+            return true;
         }
     }
 }

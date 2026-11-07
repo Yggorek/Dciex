@@ -15,5 +15,8 @@ namespace DevEnv.Application.Projects
         Task<Project> RegisterAsync(
              string path,
              CancellationToken cancellationToken = default);
+        Task<bool> UnregisterAsync(
+             string name,
+             CancellationToken cancellationToken = default);
     }
 }
