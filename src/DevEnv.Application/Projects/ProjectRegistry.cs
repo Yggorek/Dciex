@@ -17,5 +17,11 @@ namespace DevEnv.Application.Projects
         {
             return _projectStorage.LoadAsync(cancellationToken);
         }
+        public async Task<Project?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+        {
+            var projects = await _projectStorage.LoadAsync(cancellationToken);
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            return projects.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

@@ -29,8 +29,9 @@ var rootCommand = new RootCommand("DevEnv CLI");
 
 rootCommand.Subcommands.Add(HelloCommand.Create(serviceProvider));
 rootCommand.Subcommands.Add(ListCommand.Create(serviceProvider));
+rootCommand.Subcommands.Add(InfoCommand.Create(serviceProvider));
 
-rootCommand.Parse(args).Invoke();         
+await rootCommand.Parse(args).InvokeAsync();         
 
 
 

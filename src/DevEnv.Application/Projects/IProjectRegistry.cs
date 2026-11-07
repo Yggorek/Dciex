@@ -8,6 +8,9 @@ namespace DevEnv.Application.Projects
     {
         Task<IReadOnlyList<Project>> GetAllAsync (
             CancellationToken cancellationToken = default);
-
+        
+        Task<Project?> GetByNameAsync(
+            string name,
+            CancellationToken cancellationToken = default);
     }
 }
