@@ -30,6 +30,7 @@ var rootCommand = new RootCommand("DevEnv CLI");
 rootCommand.Subcommands.Add(HelloCommand.Create(serviceProvider));
 rootCommand.Subcommands.Add(ListCommand.Create(serviceProvider));
 rootCommand.Subcommands.Add(InfoCommand.Create(serviceProvider));
+rootCommand.Subcommands.Add(RegisterCommand.Create(serviceProvider));
 
 await rootCommand.Parse(args).InvokeAsync();         
 

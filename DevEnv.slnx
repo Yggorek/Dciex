@@ -5,4 +5,7 @@
     <Project Path="src/DevEnv.Core/DevEnv.Core.csproj" />
     <Project Path="src/DevEnv.Infrastructure/DevEnv.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DevEnv.Tests/DevEnv.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -12,5 +12,8 @@ namespace DevEnv.Application.Projects
         Task<Project?> GetByNameAsync(
             string name,
             CancellationToken cancellationToken = default);
+        Task<Project> RegisterAsync(
+             string path,
+             CancellationToken cancellationToken = default);
     }
 }
