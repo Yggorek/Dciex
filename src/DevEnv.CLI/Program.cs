@@ -5,6 +5,9 @@ using System.CommandLine;
 using DevEnv.CLI.Commands;
 using DevEnv.Application.Projects;
 using DevEnv.Infrastructure.Projects;
+using DevEnv.Infrastructure.Configuration;
+using DevEnv.Application.Configuration;
+
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 string appDataPath = Environment.GetFolderPath(
@@ -20,6 +23,10 @@ builder.Services.AddSingleton<IProjectStorage>(
 builder.Services.AddTransient<HelloService>();
 builder.Services.AddSingleton<IProjectRegistry, ProjectRegistry>();
 builder.Services.AddSingleton<IProjectStatusChecker, ProjectStatusChecker>();
+builder.Services.AddTransient<
+    DevEnv.Application.Configuration.IConfigurationReader>(
+    _ => new DevEnv.Infrastructure.Configuration.YamlConfigurationReader());
+
 
 using IHost host = builder.Build();
 
