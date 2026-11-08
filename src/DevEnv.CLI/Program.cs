@@ -26,6 +26,7 @@ builder.Services.AddSingleton<IProjectStatusChecker, ProjectStatusChecker>();
 builder.Services.AddTransient<
     DevEnv.Application.Configuration.IConfigurationReader>(
     _ => new DevEnv.Infrastructure.Configuration.YamlConfigurationReader());
+builder.Services.AddTransient<ConfigurationLoader>();
 
 
 using IHost host = builder.Build();
