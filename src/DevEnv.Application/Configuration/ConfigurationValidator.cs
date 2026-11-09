@@ -93,7 +93,7 @@ public class ConfigurationValidator
                 ErrorMessage = "Application configuration is required for managed environments."
             });
         }
-        if (configuration.Application != null && (string.IsNullOrWhiteSpace(configuration.Application.Path)))
+        if (configuration.Application != null && string.IsNullOrWhiteSpace(configuration.Application.Path))
         {
             errors.Add(new ConfigurationValidationError
             {

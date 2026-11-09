@@ -41,8 +41,9 @@ rootCommand.Subcommands.Add(ListCommand.Create(serviceProvider));
 rootCommand.Subcommands.Add(InfoCommand.Create(serviceProvider));
 rootCommand.Subcommands.Add(RegisterCommand.Create(serviceProvider));
 rootCommand.Subcommands.Add(UnregisterCommand.Create(serviceProvider));
+rootCommand.Subcommands.Add(ValidateCommand.Create(serviceProvider));
 
-await rootCommand.Parse(args).InvokeAsync();         
+Environment.ExitCode = await rootCommand.Parse(args).InvokeAsync();      
 
 
 
