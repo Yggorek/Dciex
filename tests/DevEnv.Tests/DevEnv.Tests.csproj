@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\DevEnv.Infrastructure\DevEnv.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\DevEnv.Application\DevEnv.Application.csproj" />
     <ProjectReference Include="..\..\src\DevEnv.Core\DevEnv.Core.csproj" />
   </ItemGroup>
