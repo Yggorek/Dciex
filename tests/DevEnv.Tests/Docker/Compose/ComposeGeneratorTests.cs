@@ -71,4 +71,9 @@ public class ComposeGeneratorTests
             Assert.Equal("redis:8", redisService.Image);
             Assert.Empty(redisService.Ports); 
         }
+        [Fact]
+        public void Generate_WithNullImage_ThrowsArgumentException()
+        {
+        
+        }
 }
