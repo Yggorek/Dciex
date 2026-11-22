@@ -188,9 +188,38 @@ namespace Dciex.Application.Environments
             }
             try
             {
-                await _dockerComposeManager.StartAsync(
-                 project.Path,
-                 cancellationToken);
+                var composeResult = await _dockerComposeManager.StartAsync(
+                    composePath,
+                    project.Path,
+                    cancellationToken);
+                if (!composeResult.IsSuccess)
+                {
+                    var diagnostics = string.Join(
+                        Environment.NewLine,
+                        new[] { composeResult.StandardError, composeResult.StandardOutput }
+                            .Where(text => !string.IsNullOrWhiteSpace(text)));
+                    var message = $"Docker Compose exited with code {composeResult.ExitCode}.";
+                    if (!string.IsNullOrWhiteSpace(diagnostics))
+                    {
+                        message = $"{message}{Environment.NewLine}{diagnostics}";
+                    }
+
+                    return new EnvironmentOperationResult
+                    {
+                        IsSuccess = false,
+                        Message = message,
+                        ErrorCode = EnvironmentErrorCode.DockerStartFailed,
+                        Errors =
+                        [
+                            new EnvironmentOperationError
+                            {
+                                Code = EnvironmentErrorCode.DockerStartFailed.ToString(),
+                                Message = message,
+                                Source = EnvironmentOperationErrorSource.DockerComposeManager
+                            }
+                        ]
+                    };
+                }
             }
             catch (InvalidOperationException ex)
             {

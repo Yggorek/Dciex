@@ -21,5 +21,13 @@
     <ProjectReference Include="..\..\src\Dciex.Infrastructure\Dciex.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Dciex.Application\Dciex.Application.csproj" />
     <ProjectReference Include="..\..\src\Dciex.Core\Dciex.Core.csproj" />
+    <ProjectReference Include="Docker\Compose\FakeDocker\FakeDocker.csproj" ReferenceOutputAssembly="false" />
+    <Compile Remove="Docker\Compose\FakeDocker\**\*.cs" />
   </ItemGroup>
+  <Target Name="CopyFakeDockerToTestOutput" AfterTargets="Build">
+    <ItemGroup>
+      <FakeDockerFiles Include="Docker\Compose\FakeDocker\bin\$(Configuration)\net10.0\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FakeDockerFiles)" DestinationFolder="$(OutDir)FakeDocker" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

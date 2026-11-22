@@ -1,4 +1,3 @@
-
 using Dciex.Application.Environments.Abstractions;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -7,51 +6,72 @@ namespace Dciex.Infrastructure.Docker.Compose;
 
 public class DockerComposeManager : IDockerComposeManager
 {
-    public async Task StartAsync(
+    private static readonly TimeSpan CancellationExitTimeout = TimeSpan.FromSeconds(5);
+
+    public Task<DockerComposeExecutionResult> StartAsync(
+        string composeFilePath,
         string workingDirectory,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        ExecuteAsync(composeFilePath, workingDirectory, ["up", "-d"], cancellationToken);
+
+    public Task<DockerComposeExecutionResult> StopAsync(
+        string composeFilePath,
+        string workingDirectory,
+        CancellationToken cancellationToken = default) =>
+        ExecuteAsync(composeFilePath, workingDirectory, ["down"], cancellationToken);
+
+    private static async Task<DockerComposeExecutionResult> ExecuteAsync(
+        string composeFilePath,
+        string workingDirectory,
+        IEnumerable<string> operationArguments,
+        CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(composeFilePath);
+        ArgumentException.ThrowIfNullOrWhiteSpace(workingDirectory);
+        cancellationToken.ThrowIfCancellationRequested();
+
         var startInfo = new ProcessStartInfo
         {
             FileName = "docker",
-            Arguments = "compose up -d",
             WorkingDirectory = workingDirectory,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false
         };
-
-        using var process = new Process
+        startInfo.ArgumentList.Add("compose");
+        startInfo.ArgumentList.Add("-f");
+        startInfo.ArgumentList.Add(composeFilePath);
+        foreach (var argument in operationArguments)
         {
-            StartInfo = startInfo
-        };
+            startInfo.ArgumentList.Add(argument);
+        }
 
-        cancellationToken.ThrowIfCancellationRequested();
-
+        using var process = new Process { StartInfo = startInfo };
         try
         {
             if (!process.Start())
             {
-                throw new InvalidOperationException(
-                    "Failed to start Docker process.");
+                throw new InvalidOperationException("Process.Start returned false.");
             }
         }
-        catch (Win32Exception ex)
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or IOException or UnauthorizedAccessException)
         {
             throw new InvalidOperationException(
-                "Docker CLI was not found. Make sure Docker is installed and available in PATH.",
+                "Docker CLI could not be started. Make sure Docker is installed and available in PATH.",
                 ex);
         }
 
-        var outputTask = process.StandardOutput.ReadToEndAsync();
-        var errorTask = process.StandardError.ReadToEndAsync();
+        // Start draining both pipes before waiting for the process so neither can fill up and block it.
+        var standardOutputTask = process.StandardOutput.ReadToEndAsync();
+        var standardErrorTask = process.StandardError.ReadToEndAsync();
 
         try
         {
             await process.WaitForExitAsync(cancellationToken);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException cancellationException)
         {
+            Exception? terminationError = null;
             try
             {
                 if (!process.HasExited)
@@ -59,26 +79,63 @@ public class DockerComposeManager : IDockerComposeManager
                     process.Kill(entireProcessTree: true);
                 }
             }
-            catch (InvalidOperationException) when (process.HasExited)
+            catch (InvalidOperationException ex)
             {
-                // Process has already exited.
+                // Kill can race with process exit. Only treat this as a termination failure if it is still running.
+                if (!process.HasExited)
+                {
+                    terminationError = ex;
+                }
+            }
+            catch (Win32Exception ex)
+            {
+                terminationError = ex;
             }
 
-            await process.WaitForExitAsync();
-            await Task.WhenAll(outputTask, errorTask);
+            try
+            {
+                await process.WaitForExitAsync().WaitAsync(CancellationExitTimeout);
+            }
+            catch (TimeoutException timeoutException)
+            {
+                ObserveWhenFaulted(standardOutputTask);
+                ObserveWhenFaulted(standardErrorTask);
+                var errors = new List<Exception> { cancellationException };
+                if (terminationError is not null)
+                {
+                    errors.Add(terminationError);
+                }
+
+                errors.Add(timeoutException);
+                throw new OperationCanceledException(
+                    "The operation was canceled, but the Docker process did not exit after termination was requested.",
+                    new AggregateException(errors),
+                    cancellationToken);
+            }
+
+            await Task.WhenAll(standardOutputTask, standardErrorTask);
+            if (terminationError is not null)
+            {
+                throw new OperationCanceledException(
+                    "The operation was canceled, but the Docker process could not be terminated cleanly.",
+                    new AggregateException(cancellationException, terminationError),
+                    cancellationToken);
+            }
 
             throw;
         }
 
-        await Task.WhenAll(outputTask, errorTask);
-
-        var output = await outputTask;
-        var error = await errorTask;
-
-        if (process.ExitCode != 0)
-        {
-            throw new InvalidOperationException(
-                $"Docker Compose failed: {error}");
-        }
+        await Task.WhenAll(standardOutputTask, standardErrorTask);
+        return new DockerComposeExecutionResult(
+            process.ExitCode,
+            await standardOutputTask,
+            await standardErrorTask);
     }
+
+    private static void ObserveWhenFaulted(Task task) =>
+        _ = task.ContinueWith(
+            static faultedTask => _ = faultedTask.Exception,
+            CancellationToken.None,
+            TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default);
 }

@@ -1,11 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+namespace Dciex.Application.Environments.Abstractions;
 
-namespace Dciex.Application.Environments.Abstractions
+public interface IDockerComposeManager
 {
-    public interface IDockerComposeManager
-    {
-        Task StartAsync(string workingDirectory, CancellationToken cancellationToken = default);
-    }
+    Task<DockerComposeExecutionResult> StartAsync(
+        string composeFilePath,
+        string workingDirectory,
+        CancellationToken cancellationToken = default);
+
+    Task<DockerComposeExecutionResult> StopAsync(
+        string composeFilePath,
+        string workingDirectory,
+        CancellationToken cancellationToken = default);
 }
