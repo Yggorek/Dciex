@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Dciex.CLI": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

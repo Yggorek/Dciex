@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Dciex.Core\Dciex.Core.csproj" />
+    <ProjectReference Include="..\Dciex.Application\Dciex.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Dciex.Infrastructure</AssemblyName>
+    <RootNamespace>Dciex.Infrastructure</RootNamespace>
+  </PropertyGroup>
+</Project>
