@@ -7,20 +7,33 @@ namespace Dciex.Infrastructure.Docker.Compose;
 public class DockerComposeManager : IDockerComposeManager
 {
     private static readonly TimeSpan CancellationExitTimeout = TimeSpan.FromSeconds(5);
+    private readonly string _dockerExecutable;
+
+    public DockerComposeManager()
+        : this("docker")
+    {
+    }
+
+    internal DockerComposeManager(string dockerExecutable)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(dockerExecutable);
+        _dockerExecutable = dockerExecutable;
+    }
 
     public Task<DockerComposeExecutionResult> StartAsync(
         string composeFilePath,
         string workingDirectory,
         CancellationToken cancellationToken = default) =>
-        ExecuteAsync(composeFilePath, workingDirectory, ["up", "-d"], cancellationToken);
+        ExecuteAsync(_dockerExecutable, composeFilePath, workingDirectory, ["up", "-d"], cancellationToken);
 
     public Task<DockerComposeExecutionResult> StopAsync(
         string composeFilePath,
         string workingDirectory,
         CancellationToken cancellationToken = default) =>
-        ExecuteAsync(composeFilePath, workingDirectory, ["down"], cancellationToken);
+        ExecuteAsync(_dockerExecutable, composeFilePath, workingDirectory, ["down"], cancellationToken);
 
     private static async Task<DockerComposeExecutionResult> ExecuteAsync(
+        string dockerExecutable,
         string composeFilePath,
         string workingDirectory,
         IEnumerable<string> operationArguments,
@@ -32,7 +45,7 @@ public class DockerComposeManager : IDockerComposeManager
 
         var startInfo = new ProcessStartInfo
         {
-            FileName = "docker",
+            FileName = dockerExecutable,
             WorkingDirectory = workingDirectory,
             RedirectStandardOutput = true,
             RedirectStandardError = true,

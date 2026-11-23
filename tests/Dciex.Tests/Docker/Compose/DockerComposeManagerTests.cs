@@ -13,7 +13,7 @@ public sealed class DockerComposeManagerTests
     {
         using var fakeDocker = new FakeDockerProcess();
         var composePath = Path.Combine(fakeDocker.WorkingDirectory, "compose file; (dev).yaml");
-        var manager = new DockerComposeManager();
+        var manager = new DockerComposeManager(fakeDocker.ExecutablePath);
 
         var result = start
             ? await manager.StartAsync(composePath, fakeDocker.WorkingDirectory)
@@ -33,7 +33,7 @@ public sealed class DockerComposeManagerTests
         using var fakeDocker = new FakeDockerProcess();
         await File.WriteAllTextAsync(Path.Combine(fakeDocker.WorkingDirectory, "fake-docker-exit-code"), "23");
 
-        var result = await new DockerComposeManager().StartAsync(
+        var result = await new DockerComposeManager(fakeDocker.ExecutablePath).StartAsync(
             Path.Combine(fakeDocker.WorkingDirectory, "compose.yaml"),
             fakeDocker.WorkingDirectory);
 
@@ -51,7 +51,7 @@ public sealed class DockerComposeManagerTests
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMilliseconds(300));
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
-            new DockerComposeManager().StartAsync(
+            new DockerComposeManager(fakeDocker.ExecutablePath).StartAsync(
                 Path.Combine(fakeDocker.WorkingDirectory, "compose.yaml"),
                 fakeDocker.WorkingDirectory,
                 cancellation.Token));
@@ -88,22 +88,22 @@ public sealed class DockerComposeManagerTests
     [Fact]
     public async Task WrapsDockerCliLaunchFailureAndPreservesCause()
     {
-        var oldPath = Environment.GetEnvironmentVariable("PATH");
-        var emptyPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(emptyPath);
-        Environment.SetEnvironmentVariable("PATH", emptyPath);
+        var workingDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(workingDirectory);
+        var missingExecutable = Path.Combine(
+            workingDirectory,
+            OperatingSystem.IsWindows() ? "missing-docker.exe" : "missing-docker");
 
         try
         {
             var error = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-                new DockerComposeManager().StartAsync("compose.yaml", emptyPath));
+                new DockerComposeManager(missingExecutable).StartAsync("compose.yaml", workingDirectory));
 
             Assert.NotNull(error.InnerException);
         }
         finally
         {
-            Environment.SetEnvironmentVariable("PATH", oldPath);
-            Directory.Delete(emptyPath, recursive: true);
+            Directory.Delete(workingDirectory, recursive: true);
         }
     }
 
@@ -120,7 +120,6 @@ public sealed class DockerComposeManagerTests
     private sealed class FakeDockerProcess : IDisposable
     {
         private readonly string _root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        private readonly string? _oldPath;
 
         public FakeDockerProcess()
         {
@@ -133,16 +132,16 @@ public sealed class DockerComposeManagerTests
                 var name = Path.GetFileName(file);
                 File.Copy(file, Path.Combine(_root, name));
             }
-
-            _oldPath = Environment.GetEnvironmentVariable("PATH");
-            Environment.SetEnvironmentVariable("PATH", _root + Path.PathSeparator + _oldPath);
         }
 
         public string WorkingDirectory { get; }
 
+        public string ExecutablePath => Path.Combine(
+            _root,
+            OperatingSystem.IsWindows() ? "docker.exe" : "docker");
+
         public void Dispose()
         {
-            Environment.SetEnvironmentVariable("PATH", _oldPath);
             Directory.Delete(_root, recursive: true);
         }
     }
