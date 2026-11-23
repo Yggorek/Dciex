@@ -33,7 +33,7 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore Dciex.sln
 
-            - name: Build solution
+      - name: Build solution
         run: dotnet build Dciex.sln --configuration Release --no-restore
 
       - name: Inspect FakeDocker output
