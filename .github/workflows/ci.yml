@@ -38,3 +38,11 @@ jobs:
 
       - name: Run tests
         run: dotnet test Dciex.sln --configuration Release --no-build --no-restore
+      - name: Inspect FakeDocker output
+        shell: pwsh
+        run: |
+          Write-Host "FakeDocker source output:"
+          Get-ChildItem tests/Dciex.Tests/Docker/Compose/FakeDocker/bin/Release/net10.0/ -ErrorAction SilentlyContinue
+
+          Write-Host "FakeDocker test output:"
+          Get-ChildItem tests/Dciex.Tests/bin/Release/net10.0/FakeDocker/ -ErrorAction SilentlyContinue
