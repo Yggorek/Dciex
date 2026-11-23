@@ -131,10 +131,6 @@ public sealed class DockerComposeManagerTests
             foreach (var file in Directory.EnumerateFiles(helperDirectory))
             {
                 var name = Path.GetFileName(file);
-                if (name is "FakeDocker" or "FakeDocker.exe")
-                {
-                    name = OperatingSystem.IsWindows() ? "docker.exe" : "docker";
-                }
                 File.Copy(file, Path.Combine(_root, name));
             }
 
