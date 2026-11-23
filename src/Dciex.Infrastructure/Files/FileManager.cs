@@ -1,5 +1,4 @@
 using Dciex.Application.Environments.Abstractions;
-using global::Dciex.Application.Environments.Abstractions;
 
 namespace Dciex.Infrastructure.Files
 { 
