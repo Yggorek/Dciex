@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Dciex.Application.Environments
 {
@@ -19,6 +18,10 @@ namespace Dciex.Application.Environments
        ConfigurationLoadFailed,
        ComposeGenerationFailed,
        FileWriteFailed,
-       DockerStartFailed
+       DockerStartFailed,
+       ComposeNotFound,
+       ComposeAmbiguous,
+       ProjectDirectoryNotFound,
+       ComposeDiscoveryFailed
     }
 }

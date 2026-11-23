@@ -8,6 +8,7 @@ public class EnvironmentConfiguration
   public List<ServiceConfiguration>? Services { get; set; }
   public ApplicationConfiguration? Application { get; set; }
   public EnvironmentMode? EnvironmentMode { get; set; }
+  public ComposeSettings? Compose { get; set; }
 }
 public enum  EnvironmentMode
 {

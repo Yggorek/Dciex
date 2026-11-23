@@ -1,10 +1,12 @@
 using Dciex.Application.Configuration;
+using Dciex.Application.Compose;
 using Dciex.Application.Environments;
 using Dciex.Application.Environments.Abstractions;
 using Dciex.Application.Projects;
 using Dciex.Application.Services;
 using Dciex.CLI.Commands;
 using Dciex.Infrastructure.Configuration;
+using Dciex.Infrastructure.Compose;
 using Dciex.Infrastructure.Docker.Compose;
 using Dciex.Infrastructure.Files;
 using Dciex.Infrastructure.Projects;
@@ -37,11 +39,11 @@ builder.Services.AddTransient<ComposeSerializer>();
 builder.Services.AddTransient<IComposeFileGenerator, ComposeFileGenerator>(); 
 builder.Services.AddTransient<IFileManager, FileManager>();
 builder.Services.AddTransient<IDockerComposeManager, DockerComposeManager>();
+builder.Services.AddTransient<IComposeFinder, ComposeFinder>();
 builder.Services.AddTransient<EnvironmentOrchestrator>();
 using IHost host = builder.Build();
 
 IServiceProvider serviceProvider = host.Services;
-serviceProvider.GetRequiredService<EnvironmentOrchestrator>();
 
 var rootCommand = new RootCommand("Dciex CLI");
 

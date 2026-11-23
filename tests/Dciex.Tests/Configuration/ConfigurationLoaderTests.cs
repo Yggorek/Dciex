@@ -114,4 +114,69 @@ public class ConfigurationLoaderTests
             return Task.FromResult(_configuration);
         }
     }
+    [Fact]
+    public async Task LoadAsync_ExistingComposeSource_ReturnsExisting()
+    {
+        var yaml = """
+        name: musicplayer
+        environmentMode: external
+        compose:
+          source: existing
+        """;
+
+        var result = await LoadFromYamlAsync(yaml);
+
+        Assert.True(result.IsValid);
+        Assert.NotNull(result.Configuration);
+        Assert.NotNull(result.Configuration.Compose);
+        Assert.Equal(ComposeSource.Existing, result.Configuration.Compose.Source);
+    }
+    [Fact]
+    public async Task LoadAsync_GeneratedComposeSource_ReturnsGenerated()
+    {
+        var yaml = """
+        name: musicplayer
+        environmentMode: external
+        compose:
+          source: generated
+        """;
+
+        var result = await LoadFromYamlAsync(yaml);
+
+        Assert.True(result.IsValid);
+        Assert.NotNull(result.Configuration);
+        Assert.NotNull(result.Configuration.Compose);
+        Assert.Equal(ComposeSource.Generated, result.Configuration.Compose.Source);
+    }
+    [Fact]
+    public async Task LoadAsync_WithoutComposeSection_ComposeIsNull()
+    {
+        var yaml = """
+        name: musicplayer
+        environmentMode: external
+        """;
+
+        var result = await LoadFromYamlAsync(yaml);
+
+        Assert.True(result.IsValid);
+        Assert.NotNull(result.Configuration);
+        Assert.Null(result.Configuration.Compose);
+    }
+    [Fact]
+    public async Task LoadAsync_UnknownComposeSource_ReturnsInvalidYamlError()
+    {
+        var yaml = """
+        name: musicplayer
+        environmentMode: external
+        compose:
+          source: unknow
+        """;
+
+        var result = await LoadFromYamlAsync(yaml);
+
+        Assert.False(result.IsValid);
+
+        var error = Assert.Single(result.LoadErrors);
+        Assert.Equal(ConfigurationLoadErrorCode.InvalidYaml, error.Code);
+    }
 }

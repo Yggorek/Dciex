@@ -15,6 +15,7 @@ namespace Dciex.Application.Environments
         ConfigurationValidator,
         ComposeFileGenerator,
         FileManager,
+        ComposeFinder,
         DockerComposeManager
     }
 }

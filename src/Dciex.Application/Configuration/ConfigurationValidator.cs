@@ -12,8 +12,16 @@ public class ConfigurationValidator
         var errors = new List<ConfigurationValidationError>();
 
         ValidateEnvironment(configuration, errors);
+        if (configuration.Compose != null && !Enum.IsDefined(configuration.Compose.Source))
+            errors.Add(new ConfigurationValidationError
+            {
+                Code = "ComposeSourceInvalid",
+                PropertyName = "Compose.Source",
+                ErrorMessage = "Compose source is not valid."
+            });
 
-        ValidateServices(configuration, errors);
+        if(configuration.Compose == null || configuration.Compose.Source == ComposeSource.Generated)
+            ValidateServices(configuration, errors);
 
         ValidateApplication(configuration, errors);
         
