@@ -33,11 +33,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore Dciex.sln
 
-      - name: Build solution
+            - name: Build solution
         run: dotnet build Dciex.sln --configuration Release --no-restore
 
-      - name: Run tests
-        run: dotnet test Dciex.sln --configuration Release --no-build --no-restore
       - name: Inspect FakeDocker output
         shell: pwsh
         run: |
@@ -46,3 +44,6 @@ jobs:
 
           Write-Host "FakeDocker test output:"
           Get-ChildItem tests/Dciex.Tests/bin/Release/net10.0/FakeDocker/ -ErrorAction SilentlyContinue
+
+      - name: Run tests
+        run: dotnet test Dciex.sln --configuration Release --no-build --no-restore
