@@ -122,6 +122,10 @@ Dciex/
     └── Dciex.Tests/           # Pruebas automatizadas
 ```
 
+## Arquitectura
+
+Consulta la [documentación de arquitectura](docs/es/ARCHITECTURE.md) para ver un resumen de la estructura del proyecto y las dependencias entre sus componentes.
+
 ## Tecnologías
 
 - C# / .NET 10
@@ -156,7 +160,7 @@ Dciex está en desarrollo activo. Agradecemos los informes de errores, las propu
 
 ## Licencia
 
-Todavía no se ha elegido una licencia. La información sobre la licencia se añadirá antes del primer lanzamiento estable.
+Este proyecto se distribuye bajo la licencia Apache License 2.0 (Apache-2.0). El texto completo de la licencia está en el archivo raíz [LICENSE](LICENSE).
 
 ---
 
