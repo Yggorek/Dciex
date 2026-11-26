@@ -154,7 +154,7 @@ namespace Dciex.Application.Environments
             }
             else
             {
-                composePath = Path.Combine(project.Path, "compose.yaml");
+                composePath = Path.Combine(project.Path, ".dciex", "compose.yaml");
                 string composeYaml;
                 try
                 {
@@ -170,7 +170,7 @@ namespace Dciex.Application.Environments
                 }
                 try
                 {
-                    await _fileManager.WriteAllTextAsync(composePath, composeYaml, cancellationToken);
+                    await _fileManager.WriteAllTextAtomicAsync(composePath, composeYaml, cancellationToken);
                 }
                 catch (IOException ex)
                 {

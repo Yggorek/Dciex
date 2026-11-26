@@ -129,7 +129,8 @@ namespace Dciex.Tests.Compose
             using var directory = new TemporaryDirectory();
             using var cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.Cancel();
-            // Act & Assert
+            // Act
+            // Assert
             Assert.Throws<OperationCanceledException>(
                 () => _finder.Find(directory.Path, cancellationTokenSource.Token));
         }
@@ -140,7 +141,8 @@ namespace Dciex.Tests.Compose
             // Arrange
             const string invalidPath = "\0";
 
-            // Act & Assert
+            // Act
+            // Assert
             Assert.Throws<ArgumentException>(() => _finder.Find(invalidPath));
         }
 

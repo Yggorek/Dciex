@@ -36,8 +36,13 @@ public class ConfigurationLoaderTests
     [Fact]
     public async Task LoadAsync_EmptyYaml_ReturnsInvalidConfigurationDataError()
     {
-        var result = await LoadFromYamlAsync(string.Empty);
+        // Arrange
+        const string yaml = "";
 
+        // Act
+        var result = await LoadFromYamlAsync(yaml);
+
+        // Assert
         Assert.False(result.IsValid);
         var error = Assert.Single(result.LoadErrors);
         Assert.Equal(ConfigurationLoadErrorCode.InvalidConfigurationData, error.Code);
@@ -47,8 +52,13 @@ public class ConfigurationLoaderTests
     [Fact]
     public async Task LoadAsync_InvalidYaml_ReturnsInvalidYamlError()
     {
-        var result = await LoadFromYamlAsync("name: [unclosed");
+        // Arrange
+        const string yaml = "name: [unclosed";
 
+        // Act
+        var result = await LoadFromYamlAsync(yaml);
+
+        // Assert
         Assert.False(result.IsValid);
         var error = Assert.Single(result.LoadErrors);
         Assert.Equal(ConfigurationLoadErrorCode.InvalidYaml, error.Code);
@@ -58,14 +68,17 @@ public class ConfigurationLoaderTests
     [Fact]
     public async Task YamlConfigurationReader_InvalidYaml_ThrowsConfigurationReadException()
     {
+        // Arrange
         var path = await WriteTempYamlAsync("name: [unclosed");
         try
         {
             var reader = new YamlConfigurationReader();
 
+            // Act
             var exception = await Assert.ThrowsAsync<ConfigurationReadException>(
                 () => reader.LoadAsync(path));
 
+            // Assert
             Assert.IsType<YamlException>(exception.InnerException);
         }
         finally
@@ -117,6 +130,7 @@ public class ConfigurationLoaderTests
     [Fact]
     public async Task LoadAsync_ExistingComposeSource_ReturnsExisting()
     {
+        // Arrange
         var yaml = """
         name: musicplayer
         environmentMode: external
@@ -124,8 +138,10 @@ public class ConfigurationLoaderTests
           source: existing
         """;
 
+        // Act
         var result = await LoadFromYamlAsync(yaml);
 
+        // Assert
         Assert.True(result.IsValid);
         Assert.NotNull(result.Configuration);
         Assert.NotNull(result.Configuration.Compose);
@@ -134,6 +150,7 @@ public class ConfigurationLoaderTests
     [Fact]
     public async Task LoadAsync_GeneratedComposeSource_ReturnsGenerated()
     {
+        // Arrange
         var yaml = """
         name: musicplayer
         environmentMode: external
@@ -141,8 +158,10 @@ public class ConfigurationLoaderTests
           source: generated
         """;
 
+        // Act
         var result = await LoadFromYamlAsync(yaml);
 
+        // Assert
         Assert.True(result.IsValid);
         Assert.NotNull(result.Configuration);
         Assert.NotNull(result.Configuration.Compose);
@@ -151,13 +170,16 @@ public class ConfigurationLoaderTests
     [Fact]
     public async Task LoadAsync_WithoutComposeSection_ComposeIsNull()
     {
+        // Arrange
         var yaml = """
         name: musicplayer
         environmentMode: external
         """;
 
+        // Act
         var result = await LoadFromYamlAsync(yaml);
 
+        // Assert
         Assert.True(result.IsValid);
         Assert.NotNull(result.Configuration);
         Assert.Null(result.Configuration.Compose);
@@ -165,6 +187,7 @@ public class ConfigurationLoaderTests
     [Fact]
     public async Task LoadAsync_UnknownComposeSource_ReturnsInvalidYamlError()
     {
+        // Arrange
         var yaml = """
         name: musicplayer
         environmentMode: external
@@ -172,8 +195,10 @@ public class ConfigurationLoaderTests
           source: unknow
         """;
 
+        // Act
         var result = await LoadFromYamlAsync(yaml);
 
+        // Assert
         Assert.False(result.IsValid);
 
         var error = Assert.Single(result.LoadErrors);
