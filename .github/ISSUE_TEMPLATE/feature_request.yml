@@ -1,0 +1,45 @@
+name: Feature request
+description: Suggest an improvement or new capability for Dciex.
+title: "[Feature]: "
+body:
+  - type: input
+    id: feature-name
+    attributes:
+      label: Feature name
+      description: Give your suggestion a short, clear name.
+      placeholder: "For example: Add a dry-run option"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this feature solve?
+      description: Describe the need or difficulty you have today.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed solution
+      description: Describe how you think Dciex could address the problem.
+
+  - type: textarea
+    id: usage-example
+    attributes:
+      label: Example usage
+      description: Show how you imagine using this feature, such as a command or workflow.
+      render: shell
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe any workarounds or other approaches you considered.
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add examples or other information that may help explain the request.

@@ -19,7 +19,7 @@ Dciex is an open-source command-line tool that aims to simplify the setup and ma
 - **Compose generation** — generate a `compose.yaml` file from the Dciex environment configuration.
 - **Existing Compose discovery** — find an existing Docker Compose file in a project directory.
 - **Environment startup** — orchestrate configuration loading, Compose file selection or generation, and Docker Compose startup.
-- **Automated tests** — unit and integration-oriented tests for configuration, Compose handling, and orchestration.
+- **Automated tests** — tests for configuration, Compose handling, and orchestration.
 
 ## Requirements
 
@@ -122,6 +122,10 @@ Dciex/
     └── Dciex.Tests/           # Automated tests
 ```
 
+## Architecture
+
+See the [architecture documentation](docs/en/ARCHITECTURE.md) for an overview of the project structure and component dependencies.
+
 ## Technology stack
 
 - C# / .NET 10
@@ -156,7 +160,7 @@ Dciex is under active development. Bug reports, ideas, and contributions are wel
 
 ## License
 
-A license has not been selected yet. Licensing information will be added before the first stable release.
+This project is distributed under the Apache License 2.0 (Apache-2.0). The full license text is available in the root [LICENSE](LICENSE) file.
 
 ---
 

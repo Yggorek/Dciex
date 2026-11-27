@@ -1,0 +1,74 @@
+name: Bug report
+description: Report a problem with Dciex.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Share enough detail to help us understand and reproduce the problem.
+
+  - type: input
+    id: version
+    attributes:
+      label: Dciex version
+      description: Include the version or commit, if known.
+      placeholder: "For example: 1.2.3 or commit abc1234"
+
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating system and version
+      description: Include the OS and version where the problem occurred.
+      placeholder: "For example: Windows 11, Ubuntu 24.04, or macOS 15"
+
+  - type: input
+    id: command
+    attributes:
+      label: Command or action
+      description: Which Dciex command or action triggered the problem?
+      placeholder: dciex up musicplayer
+
+  - type: textarea
+    id: install-method
+    attributes:
+      label: Installation or run method
+      description: Describe how you installed and ran Dciex. For Docker, include the method you used, such as a direct command, Compose, or another setup.
+      placeholder: "For example: downloaded release, built from source, or Docker Compose"
+      render: shell
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem description
+      description: Explain what happened and any relevant context.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to reproduce
+      description: List the commands or actions that trigger the problem, if known.
+      placeholder: |
+        1. Run ...
+        2. Provide ...
+        3. Observe ...
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual behavior
+      description: What happened instead? Include any error message.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and additional information
+      description: Add relevant logs or context. Remove passwords, tokens, API keys, and any other secrets before submitting.
+      render: shell
