@@ -53,12 +53,12 @@ flowchart TD
 3. `EnvironmentOrchestrator` loads the project through `ProjectRegistry` and `IProjectStorage`. If the project is not found or the registry cannot be read, an operation error is returned.
 4. For a found project, `devenv.yaml` is loaded through `ConfigurationLoader`. If the file is read, `ConfigurationValidator` validates the configuration. Read or validation errors terminate the operation.
 5. The Compose source comes from `Compose.Source`; if the setting is not specified, the model uses `Generated`. The only exception is a missing `devenv.yaml`: in that case, `Existing` mode is enabled.
-6. For `Generated`, `ComposeFileGenerator` builds and serializes the configuration, and `FileManager` saves the result as `<project path>/compose.yaml`.
+6. For `Generated`, `ComposeFileGenerator` builds and serializes the configuration, and `FileManager` saves the result as `<project>/.dciex/compose.yaml`.
 7. For `Existing`, `ComposeFinder` searches for a Compose file only in the root of the project directory. It supports `compose.yaml`, `compose.yml`, `docker-compose.yaml`, and `docker-compose.yml`, regardless of filename case. A missing file, multiple matches, or an inaccessible directory results in an error.
 8. `DockerComposeManager` runs `docker compose -f <path> up -d` from the project directory and collects the exit code and output streams. A non-zero code or process startup error is converted by the orchestrator into an error result.
 9. `EnvironmentOrchestrator` returns `EnvironmentOperationResult`; `UpCommand` prints a success or error message.
 
-Under current behavior, a missing `devenv.yaml` is allowed only for the scenario using an existing Compose file. An empty, malformed, or invalid file does not switch the operation to `Existing`. If multiple Compose files are found, one cannot be selected automatically. Generation writes to the fixed path `compose.yaml`. The external process runs the local Docker CLI; `UpCommand` does not manage Docker itself.
+Under current behavior, a missing `devenv.yaml` is allowed only for the scenario using an existing Compose file. An empty, malformed, or invalid file does not switch the operation to `Existing`. If multiple Compose files are found, one cannot be selected automatically. Generation writes to the fixed path `.dciex/compose.yaml` inside the project directory. The external process runs the local Docker CLI; `UpCommand` does not manage Docker itself.
 
 ## Architectural conventions
 

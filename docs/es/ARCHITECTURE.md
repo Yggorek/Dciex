@@ -53,12 +53,12 @@ flowchart TD
 3. `EnvironmentOrchestrator` carga el proyecto mediante `ProjectRegistry` e `IProjectStorage`. Si no se encuentra el proyecto o no se puede leer el registro, se devuelve un error de operación.
 4. Para un proyecto encontrado, `devenv.yaml` se carga mediante `ConfigurationLoader`. Si se lee el archivo, `ConfigurationValidator` valida la configuración. Los errores de lectura o validación terminan la operación.
 5. El origen de Compose se obtiene de `Compose.Source`; si no se especifica esta opción, el modelo utiliza `Generated`. La única excepción es la ausencia de `devenv.yaml`: en ese caso, se activa el modo `Existing`.
-6. Para `Generated`, `ComposeFileGenerator` construye y serializa la configuración, y `FileManager` guarda el resultado como `<ruta del proyecto>/compose.yaml`.
+6. Para `Generated`, `ComposeFileGenerator` construye y serializa la configuración, y `FileManager` guarda el resultado como `<project>/.dciex/compose.yaml`.
 7. Para `Existing`, `ComposeFinder` busca un archivo Compose solo en la raíz del directorio del proyecto. Admite `compose.yaml`, `compose.yml`, `docker-compose.yaml` y `docker-compose.yml`, sin distinguir mayúsculas y minúsculas en el nombre. Si no hay ningún archivo, hay varias coincidencias o el directorio no está disponible, se produce un error.
 8. `DockerComposeManager` ejecuta `docker compose -f <path> up -d` desde el directorio del proyecto y recopila el código de salida y los flujos de salida. El orquestador convierte un código distinto de cero o un error al iniciar el proceso en un resultado de error.
 9. `EnvironmentOrchestrator` devuelve `EnvironmentOperationResult`; `UpCommand` muestra un mensaje de éxito o de error.
 
-Con el comportamiento actual, la ausencia de `devenv.yaml` solo se permite en el escenario que utiliza un archivo Compose existente. Un archivo vacío, mal formado o no válido no cambia la operación a `Existing`. Si se encuentran varios archivos Compose, no se puede elegir uno automáticamente. La generación escribe en la ruta fija `compose.yaml`. El proceso externo ejecuta el Docker CLI local; `UpCommand` no administra Docker directamente.
+Con el comportamiento actual, la ausencia de `devenv.yaml` solo se permite en el escenario que utiliza un archivo Compose existente. Un archivo vacío, mal formado o no válido no cambia la operación a `Existing`. Si se encuentran varios archivos Compose, no se puede elegir uno automáticamente. La generación escribe en la ruta fija `.dciex/compose.yaml` dentro del directorio del proyecto. El proceso externo ejecuta el Docker CLI local; `UpCommand` no administra Docker directamente.
 
 ## Convenciones arquitectónicas
 

@@ -16,27 +16,33 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_GeneratedConfiguration_GeneratesWritesAndStartsOnce()
     {
+        // Arrange
         var rig = new OrchestratorRig(ValidConfiguration());
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(1, rig.Generator.Calls);
         Assert.Equal(1, rig.Files.Calls);
         Assert.Equal(0, rig.Finder.Calls);
         Assert.Equal(1, rig.Docker.Calls);
-        Assert.Equal(Path.Combine(ProjectPath, "compose.yaml"), rig.Docker.ComposePath);
+        Assert.Equal(Path.Combine(ProjectPath, ".dciex", "compose.yaml"), rig.Docker.ComposePath);
     }
 
     [Fact]
     public async Task UpAsync_ConfigurationWithoutComposeSection_UsesGeneratedSource()
     {
+        // Arrange
         var configuration = ValidConfiguration();
         configuration.Compose = null;
         var rig = new OrchestratorRig(configuration);
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(1, rig.Generator.Calls);
         Assert.Equal(1, rig.Files.Calls);
@@ -47,11 +53,14 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_ExistingConfiguration_UsesFoundFileWithoutGenerationOrWrite()
     {
+        // Arrange
         var rig = new OrchestratorRig(ValidConfiguration(ComposeSource.Existing));
         rig.Finder.Result = Found(ExistingComposePath);
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(0, rig.Generator.Calls);
         Assert.Equal(0, rig.Files.Calls);
@@ -63,11 +72,14 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_MissingConfigurationAndFoundCompose_StartsExistingFile()
     {
+        // Arrange
         var rig = new OrchestratorRig(new FileNotFoundException());
         rig.Finder.Result = Found(ExistingComposePath);
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(0, rig.Generator.Calls);
         Assert.Equal(0, rig.Files.Calls);
@@ -79,11 +91,14 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_MissingConfigurationAndCompose_ReturnsComposeNotFound()
     {
+        // Arrange
         var rig = new OrchestratorRig(new FileNotFoundException());
         rig.Finder.Result = new ComposeDiscoveryResult { Status = ComposeDiscoveryStatus.NotFound };
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(EnvironmentErrorCode.ComposeNotFound, result.ErrorCode);
         Assert.Equal(0, rig.Docker.Calls);
@@ -92,11 +107,14 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_ComposeFinderIOException_ReturnsComposeDiscoveryFailed()
     {
+        // Arrange
         var rig = new OrchestratorRig(ValidConfiguration(ComposeSource.Existing));
         rig.Finder.Failure = new IOException("search failed");
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(EnvironmentErrorCode.ComposeDiscoveryFailed, result.ErrorCode);
         Assert.Equal(1, rig.Finder.Calls);
@@ -106,11 +124,14 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_ComposeFinderUnauthorizedAccess_ReturnsComposeDiscoveryFailed()
     {
+        // Arrange
         var rig = new OrchestratorRig(ValidConfiguration(ComposeSource.Existing));
         rig.Finder.Failure = new UnauthorizedAccessException("denied");
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(EnvironmentErrorCode.ComposeDiscoveryFailed, result.ErrorCode);
         Assert.Equal(1, rig.Finder.Calls);
@@ -120,10 +141,13 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_InvalidComposeSource_FailsValidationWithoutSearchingOrStarting()
     {
+        // Arrange
         var rig = new OrchestratorRig(ValidConfiguration((ComposeSource)int.MaxValue));
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(EnvironmentErrorCode.ConfigurationLoadFailed, result.ErrorCode);
         Assert.Contains(result.Errors, error => error.Code == "ComposeSourceInvalid");
@@ -134,6 +158,7 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_MultipleExistingComposeFiles_ReturnsComposeAmbiguousAndListsFiles()
     {
+        // Arrange
         var rig = new OrchestratorRig(ValidConfiguration(ComposeSource.Existing));
         rig.Finder.Result = new ComposeDiscoveryResult
         {
@@ -141,8 +166,10 @@ public sealed class EnvironmentOrchestratorTests
             Paths = ["compose.yaml", "docker-compose.yml"]
         };
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(EnvironmentErrorCode.ComposeAmbiguous, result.ErrorCode);
         Assert.Contains("compose.yaml", result.Message);
@@ -153,11 +180,14 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_MissingProjectDirectory_ReturnsProjectDirectoryNotFound()
     {
+        // Arrange
         var rig = new OrchestratorRig(ValidConfiguration(ComposeSource.Existing));
         rig.Finder.Result = new ComposeDiscoveryResult { Status = ComposeDiscoveryStatus.DirectoryNotFound };
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(EnvironmentErrorCode.ProjectDirectoryNotFound, result.ErrorCode);
         Assert.Equal(0, rig.Docker.Calls);
@@ -166,10 +196,13 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_InvalidYaml_DoesNotSearchOrStartCompose()
     {
+        // Arrange
         var rig = new OrchestratorRig(new ConfigurationReadException("bad yaml", new FormatException()));
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(EnvironmentErrorCode.ConfigurationLoadFailed, result.ErrorCode);
         Assert.Equal(0, rig.Finder.Calls);
@@ -179,10 +212,13 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_InaccessibleConfiguration_DoesNotSearchOrStartCompose()
     {
+        // Arrange
         var rig = new OrchestratorRig(new UnauthorizedAccessException("denied"));
 
+        // Act
         var result = await rig.Orchestrator.UpAsync("musicplayer");
 
+        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(EnvironmentErrorCode.ConfigurationLoadFailed, result.ErrorCode);
         Assert.Equal(ConfigurationLoadErrorCode.AccessDenied.ToString(), Assert.Single(result.Errors).Code);
@@ -193,12 +229,15 @@ public sealed class EnvironmentOrchestratorTests
     [Fact]
     public async Task UpAsync_CancellationDuringConfigurationLoad_Propagates()
     {
+        // Arrange
         var cancellation = new OperationCanceledException();
         var rig = new OrchestratorRig(cancellation);
 
+        // Act
         var thrown = await Assert.ThrowsAsync<OperationCanceledException>(
             () => rig.Orchestrator.UpAsync("musicplayer"));
 
+        // Assert
         Assert.Same(cancellation, thrown);
         Assert.Equal(0, rig.Finder.Calls);
         Assert.Equal(0, rig.Docker.Calls);
@@ -276,6 +315,8 @@ public sealed class EnvironmentOrchestratorTests
     {
         public int Calls { get; private set; }
         public Task WriteAllTextAsync(string path, string content, CancellationToken cancellationToken = default)
+        { Calls++; return Task.CompletedTask; }
+        public Task WriteAllTextAtomicAsync(string path, string content, CancellationToken cancellationToken = default)
         { Calls++; return Task.CompletedTask; }
     }
 

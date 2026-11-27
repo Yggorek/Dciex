@@ -11,14 +11,17 @@ public sealed class DockerComposeManagerTests
     [InlineData(false, "compose", "down")]
     public async Task UsesComposeFileAndExpectedArguments(bool start, params string[] operationArguments)
     {
+        // Arrange
         using var fakeDocker = new FakeDockerProcess();
         var composePath = Path.Combine(fakeDocker.WorkingDirectory, "compose file; (dev).yaml");
         var manager = new DockerComposeManager(fakeDocker.ExecutablePath);
 
+        // Act
         var result = start
             ? await manager.StartAsync(composePath, fakeDocker.WorkingDirectory)
             : await manager.StopAsync(composePath, fakeDocker.WorkingDirectory);
 
+        // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(0, result.ExitCode);
         Assert.Equal("fake stderr" + Environment.NewLine, result.StandardError);
@@ -30,13 +33,16 @@ public sealed class DockerComposeManagerTests
     [Fact]
     public async Task ReturnsExitCodeAndBothOutputStreamsWhenComposeFails()
     {
+        // Arrange
         using var fakeDocker = new FakeDockerProcess();
         await File.WriteAllTextAsync(Path.Combine(fakeDocker.WorkingDirectory, "fake-docker-exit-code"), "23");
 
+        // Act
         var result = await new DockerComposeManager(fakeDocker.ExecutablePath).StartAsync(
             Path.Combine(fakeDocker.WorkingDirectory, "compose.yaml"),
             fakeDocker.WorkingDirectory);
 
+        // Assert
         Assert.False(result.IsSuccess);
         Assert.Equal(23, result.ExitCode);
         Assert.Contains("compose", result.StandardOutput);
@@ -46,16 +52,19 @@ public sealed class DockerComposeManagerTests
     [Fact]
     public async Task CancellationStopsTheProcessAndRemainsCancellation()
     {
+        // Arrange
         using var fakeDocker = new FakeDockerProcess();
         await File.WriteAllTextAsync(Path.Combine(fakeDocker.WorkingDirectory, "fake-docker-delay"), "delay");
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMilliseconds(300));
 
+        // Act
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
             new DockerComposeManager(fakeDocker.ExecutablePath).StartAsync(
                 Path.Combine(fakeDocker.WorkingDirectory, "compose.yaml"),
                 fakeDocker.WorkingDirectory,
                 cancellation.Token));
 
+        // Assert
         var processId = int.Parse(await File.ReadAllTextAsync(
             Path.Combine(fakeDocker.WorkingDirectory, "fake-docker-pid")));
         await AssertProcessExitedAsync(processId);
@@ -88,6 +97,7 @@ public sealed class DockerComposeManagerTests
     [Fact]
     public async Task WrapsDockerCliLaunchFailureAndPreservesCause()
     {
+        // Arrange
         var workingDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(workingDirectory);
         var missingExecutable = Path.Combine(
@@ -96,9 +106,11 @@ public sealed class DockerComposeManagerTests
 
         try
         {
+            // Act
             var error = await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 new DockerComposeManager(missingExecutable).StartAsync("compose.yaml", workingDirectory));
 
+            // Assert
             Assert.NotNull(error.InnerException);
         }
         finally
@@ -110,9 +122,12 @@ public sealed class DockerComposeManagerTests
     [Fact]
     public async Task PreCanceledOperationDoesNotStartDocker()
     {
+        // Arrange
         using var cancellation = new CancellationTokenSource();
         cancellation.Cancel();
 
+        // Act
+        // Assert
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
             new DockerComposeManager().StartAsync("compose.yaml", ".", cancellation.Token));
     }

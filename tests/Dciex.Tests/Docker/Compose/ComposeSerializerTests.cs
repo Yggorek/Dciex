@@ -9,7 +9,7 @@ namespace Dciex.Tests.Docker.Compose
         [Fact]
         public void Serialize_WithValidConfiguration_ReturnsYaml()
         {
-            //Arrange
+            // Arrange
             var config = new ComposeConfiguration
             {
                 Services = new Dictionary<string, ComposeService>
@@ -27,10 +27,10 @@ namespace Dciex.Tests.Docker.Compose
             var serializer = new ComposeSerializer();
             
 
-            //Act
+            // Act
             var result = serializer.Serialize(config);
 
-            //Assert
+            // Assert
             Assert.Contains("services:", result);
             Assert.Contains("postgres:", result);
             Assert.Contains("image: postgres:17", result);
